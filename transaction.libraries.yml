@@ -6,5 +6,5 @@ transactionmanager:
             css/transaction-base.css: {}
     js:
         js/bootstrap-datepicker.js: {}
-        js/canvasjs.min.js: {}
+        js/chart.min.js: {}
         js/transaction.js: {}

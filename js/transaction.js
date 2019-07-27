@@ -1,4 +1,13 @@
-(function($) {
+(function ($) {
+    window.chartColors = {
+        red: 'rgb(255, 99, 132)',
+        orange: 'rgb(255, 159, 64)',
+        yellow: 'rgb(255, 205, 86)',
+        green: 'rgb(75, 192, 192)',
+        blue: 'rgb(54, 162, 235)',
+        purple: 'rgb(153, 102, 255)',
+        grey: 'rgb(201, 203, 207)'
+    };
     function resetTable(idTable) {
         $('#' + idTable).html("<thead></thead> <tbody></tbody>");
     }
@@ -89,7 +98,7 @@
 
     function CallAPI() {
         var inputdata = {};
-        $('#apiTable').find('.datepicker').each(function() {
+        $('#apiTable').find('.datepicker').each(function () {
             inputdata[$(this).attr('id')] = new Date($(this).val()).valueOf();
         });
         inputdata['appId'] = drupalSettings.application.id;
@@ -98,12 +107,12 @@
             type: 'POST',
             url: drupalSettings.path.baseUrl + 'apianalytic/get',
             data: inputdata,
-            beforeSend: function() {
+            beforeSend: function () {
                 resetTable('lstSumary');
                 resetTable('lst');
                 resetTable('log');
             },
-            success: function(obj) {
+            success: function (obj) {
                 if (obj.data != undefined) {
                     var objSerialize = ParseToJson(obj.data.content);
                     var data = [];
@@ -132,17 +141,17 @@
                     // }
                 }
             },
-            error: function(err) {
+            error: function (err) {
                 console.log(err);
             }
         });
     }
-    Date.prototype.addDays = function(days) {
+    Date.prototype.addDays = function (days) {
         var date = new Date(this.valueOf());
         date.setDate(date.getDate() + days);
         return date;
     }
-    Date.prototype.addHours = function(h) {
+    Date.prototype.addHours = function (h) {
         this.setTime(this.getTime() + (h * 60 * 60 * 1000));
         return this;
     }
@@ -313,7 +322,7 @@
                     // "Pre Count Transaction": PreCountTransaction,
                     // "Pre Total Amount": PreTotalAmount,
                     "Post Amount": TotalAmount
-                        //NetAmount
+                    //NetAmount
                 });
             }
         }
@@ -386,76 +395,60 @@
     }
 
     function BuildCanvasChart(transactionsumary) {
+        var aXisX = [];
+        transactionsumary.forEach(element => {
+            aXisX.push(element['Trans Date']);
+        });
         var datapointSummaryFailed = [];
         var datapointSummarySuccess = [];
         transactionsumary.forEach(element => {
-            datapointSummaryFailed.push({ label: element['Trans Date'], y: element['Failed Trans'] });
-            datapointSummarySuccess.push({ label: element['Trans Date'], y: element['Success Trans'] });
+            datapointSummaryFailed.push(element['Failed Trans']);
+            datapointSummarySuccess.push(element['Success Trans']);
         });
+        var color = Chart.helpers.color;
+        var barChartData = {
+            labels: aXisX,
+            datasets: [{
+                label: 'Failed Trans',
+                backgroundColor: color(window.chartColors.red).alpha(0.5).rgbString(),
+                borderColor: window.chartColors.red,
+                borderWidth: 1,
+                data: datapointSummaryFailed
+            }, {
+                label: 'Success Trans',
+                backgroundColor: color(window.chartColors.blue).alpha(0.5).rgbString(),
+                borderColor: window.chartColors.blue,
+                borderWidth: 1,
+                data: datapointSummarySuccess
+            }]
 
-        var chart = new CanvasJS.Chart("chartContainer", {
-            animationEnabled: true,
-            title: {
-                text: "Transaction Summary"
-            },
-            axisY: {
-                title: "Failed Trans",
-                titleFontColor: "#4F81BC",
-                lineColor: "#4F81BC",
-                labelFontColor: "#4F81BC",
-                tickColor: "#4F81BC"
-            },
-            axisY2: {
-                title: "Success Trans",
-                titleFontColor: "#C0504E",
-                lineColor: "#C0504E",
-                labelFontColor: "#C0504E",
-                tickColor: "#C0504E"
-            },
-            toolTip: {
-                shared: true
-            },
-            legend: {
-                cursor: "pointer",
-                itemclick: toggleDataSeries
-            },
-            data: [{
-                    type: "column",
-                    name: "Failed Trans",
-                    legendText: "Failed Trans",
-                    showInLegend: true,
-                    dataPoints: datapointSummaryFailed
+        };
+        var ctx = document.getElementById('canvas').getContext('2d');
+        window.myBar = new Chart(ctx, {
+            type: 'bar',
+            data: barChartData,
+            options: {
+                responsive: true,
+                legend: {
+                    position: 'top',
                 },
-                {
-                    type: "column",
-                    name: "Success Trans",
-                    legendText: "Success Trans",
-                    axisYType: "secondary",
-                    showInLegend: true,
-                    dataPoints: datapointSummarySuccess
+                title: {
+                    display: true,
+                    text: 'Transaction Summary'
                 }
-            ]
+            }
         });
-        chart.render();
+        //window.myBar.update();
     }
 
-    function toggleDataSeries(e) {
-        if (typeof(e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
-            e.dataSeries.visible = false;
-        } else {
-            e.dataSeries.visible = true;
-        }
-        chart.render();
-    }
-
-    $(document).ready(function() {
+    $(document).ready(function () {
         $('.datepicker').datepicker({
             format: 'yyyy-mm-dd'
         });
-        $('#btnSearch').click(function() {
+        $('#btnSearch').click(function () {
             CallAPI();
         });
-        $('#size').change(function() {
+        $('#size').change(function () {
             CallAPI();
         });
 
