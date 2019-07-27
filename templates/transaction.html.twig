@@ -6,7 +6,14 @@
             <div class="form-group row">
                 <label class="col-md-2 col-form-label">From Date</label>
                 <div class="col-md-6">
-                    <input autocomplete="off" class="form-control datepicker" id="fromDate" name="fromDate" type="text"/>
+                    <div class="form-group" style="width: 60px;">
+                        <div class="input-group date">
+                            <input readonly autocomplete="off" class="form-control datepicker" id="fromDate" name="fromDate" style="background-color: white;opacity: 1;width: 160px;padding-right: 0px !important;" type="text">
+                            <span class="input-group-addon" style="margin-right: 0px;position: absolute;right: 0;z-index: 99;width: 39px;border-bottom-right-radius: var(--border-radius-input);border-top-right-radius: var(--border-radius-input);cursor: pointer;">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -16,7 +23,14 @@
             <div class="form-group row">
                 <label class="col-md-2 col-form-label">To Date</label>
                 <div class="col-md-6">
-                    <input autocomplete="off" class="form-control datepicker" id="toDate" name="toDate" type="text"/>
+                    <div class="form-group" style="width: 60px;">
+                        <div class="input-group date">
+                            <input readonly autocomplete="off" class="form-control datepicker" id="toDate" name="toDate" style="background-color: white;opacity: 1;width: 160px;padding-right: 0px !important;" type="text">
+                            <span class="input-group-addon" style="margin-right: 0px;position: absolute;right: 0;z-index: 99;width: 39px;border-bottom-right-radius: var(--border-radius-input);border-top-right-radius: var(--border-radius-input);cursor: pointer;">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -51,7 +65,7 @@
         </div>
     </div>
     <div class="row" style="margin-bottom: 15px;">
-        <div id="chartContainer" class="col-md-12" style="min-height: 300px;"></div>
+        <div class="col-md-12" id="chartContainer" style="min-height: 300px;"></div>
     </div>
     <div class="row" style="margin-bottom: 15px;">
         <div class="col-md-12">
