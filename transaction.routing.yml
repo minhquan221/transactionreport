@@ -1,0 +1,13 @@
+transaction.transactionmanager:
+  path: '/node/{node}/transaction'
+  defaults:
+    _controller: '\Drupal\transaction\Controller\TransactionController::transaction'
+    _title: 'Transaction Manager'
+  requirements:
+    _role: 'authenticated'
+    _application_analytics_access_check: 'TRUE'
+    _ibm_apim_analytics_access_check: 'TRUE'
+  options:
+    parameters:
+      node:
+        type: 'entity:node'

@@ -1,0 +1,6 @@
+name: Transaction Manager
+description: Show Analytics transaction report.
+package: OCB Develop
+
+type: module
+core: 8.x

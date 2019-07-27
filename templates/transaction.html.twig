@@ -1,0 +1,72 @@
+<h1>Transaction Manager</h1>
+
+<div id="apiTable" style="margin-top: 30px;">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="form-group row">
+                <label class="col-md-2 col-form-label">From Date</label>
+                <div class="col-md-6">
+                    <input autocomplete="off" class="form-control datepicker" id="fromDate" name="fromDate" type="text"/>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="form-group row">
+                <label class="col-md-2 col-form-label">To Date</label>
+                <div class="col-md-6">
+                    <input autocomplete="off" class="form-control datepicker" id="toDate" name="toDate" type="text"/>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row" style="display: none;">
+        <div class="col-md-12">
+            <div class="form-group row">
+                <label class="col-md-2 col-form-label">Page Size</label>
+                <div class="col-md-6">
+                    <select class="form-control" id="size" name="size">
+                        <option value="1000">1000</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="form-group row">
+                <div class="col-md-2 offset-md-2">
+                    <input class="btn-primary" id="btnSearch" type="button" value="Search"/>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row" style="margin-bottom: 15px;">
+        <div class="col-md-12">
+            <table id="lstSumary">
+                <thead></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row" style="margin-bottom: 15px;">
+        <div id="chartContainer" class="col-md-12" style="min-height: 300px;"></div>
+    </div>
+    <div class="row" style="margin-bottom: 15px;">
+        <div class="col-md-12">
+            <table id="lst">
+                <thead></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row" style="margin-bottom: 15px;">
+        <div class="col-md-12">
+            <table id="log">
+                <thead></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>

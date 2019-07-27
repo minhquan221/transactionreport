@@ -1,0 +1,21 @@
+<?php
+
+function transaction_theme() {
+  // We use a template file to allow for translation of blocks of content.
+  // Therefore we need to add this content at the theming layer.
+  return [
+    'transaction_theme' => [
+      'template' => 'transaction',
+      'variables' => [
+        'catalogId' => NULL,
+        'catalogName' => NULL,
+        'porgId' => NULL,
+        'userHasAppManage' => FALSE,
+        'userHasSubManage' => FALSE,
+        'userHasSubView' => FALSE,
+        'applifecycleEnabled' => FALSE,
+        'node' => NULL,
+      ],
+    ],
+  ];
+}

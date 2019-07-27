@@ -1,0 +1,10 @@
+transactionmanager:
+    version: 1.x
+    css:
+        base:
+            css/bootstrap-datepicker.css: {}
+            css/transaction-base.css: {}
+    js:
+        js/bootstrap-datepicker.js: {}
+        js/canvasjs.min.js: {}
+        js/transaction.js: {}
