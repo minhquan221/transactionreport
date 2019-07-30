@@ -8,6 +8,14 @@
         purple: 'rgb(153, 102, 255)',
         grey: 'rgb(201, 203, 207)'
     };
+    var barChartData = {
+        labels: [],
+        datasets: []
+    };
+    var myBar = new Chart(ctx, {
+        type: 'bar',
+        data: barChartData
+    });
     function resetTable(idTable) {
         $('#' + idTable).html("<thead></thead> <tbody></tbody>");
     }
@@ -96,11 +104,47 @@
         $('#apiTable').html($html);
     }
 
+    function BuildSelectInput(data) {
+        var select = document.getElementById('filterselect');
+        var selectOption = [];
+        for (var i = 0; i < data.length; i++) {
+            var ele = data[i];
+            // var DateTime = ele['datetime'];
+            // var ApiId = ele['api_id'];
+            var ApiName = ele['api_name'];
+            // var AppId = ele['app_id'];
+            // var AppName = ele['app_name'];
+            // var ApiVersion = ele['api_version'];
+            // var ClientId = ele['client_id'];
+            // var PlanId = ele['plan_id'];
+            // var PlanName = ele['plan_name'];
+            // var ProductTitle = ele['product_title'];
+            // var ProductVersion = ele['product_version'];
+            // var RequestMethod = ele['request_method'];
+            // var StatusCode = ele['status_code'];
+            // var TimeRequest = ele['time_to_serve_request'];
+            // var UriPath = ele['uri_path'];
+            var founded = selectOption.find(function (element) {
+                return element == ApiName;
+            });
+            if (founded.length == 0) {
+                selectOption.push(ApiName);
+            }
+        }
+        selectOption.forEach(el => {
+            var opt = document.createElement('option');
+            opt.value = el;
+            opt.innerHTML = el;
+            select.appendChild(opt);
+        });
+
+    }
+
     function CallAPI() {
         var inputdata = {};
-        $('#apiTable').find('.datepicker').each(function () {
-            inputdata[$(this).attr('id')] = new Date($(this).val()).valueOf();
-        });
+        inputdata['fromDate'] = new Date($('#fromDate').val()).valueOf();
+        inputdata['toDate'] = new Date($('#toDate').val()).addHours(23).addMinutes(59).valueOf();
+        //.addHours(23).addMinutes(59)
         inputdata['appId'] = drupalSettings.application.id;
         inputdata['size'] = $('#size').val();
         $.ajax({
@@ -119,6 +163,7 @@
                     for (var i = 0; i < objSerialize.responses[0].hits.hits.length; i++) {
                         data.push(objSerialize.responses[0].hits.hits[i]._source);
                     }
+                    BuildSelectInput(data);
                     var transationSumary = BuilDataTransactionSumary(data);
                     if (transationSumary.length > 0) {
                         buildHeader(transationSumary[0], 'lstSumary');
@@ -155,6 +200,15 @@
         this.setTime(this.getTime() + (h * 60 * 60 * 1000));
         return this;
     }
+    Date.prototype.addMinutes = function (m) {
+        this.setTime(this.getTime() + (m * 60 * 1000));
+        return this;
+    }
+
+    Date.prototype.ConvertCodeStringDate = function (h) {
+        this.setTime(this.getTime() + (h * 60 * 60 * 1000));
+        return this.getDate() + "/" + this.getMonth() + "/" + this.getFullYear() + " " + this.getHours() + this + ":" + this.getMinutes() + ":" + this.getSeconds();
+    }
 
     function sameDay(d1, d2) {
         return d1.getFullYear() === d2.getFullYear() &&
@@ -173,6 +227,7 @@
     }
 
     function BuilDataTransactionSumary(data) {
+        var selectFilter = $('#filterselect').val();
         var transactionsumary = [];
         var beginDate = new Date($('#fromDate').val());
         var endDate = new Date($('#toDate').val());
@@ -217,91 +272,93 @@
             //transName = rangeNameTrans[k];
             for (var i = 0; i < data.length; i++) {
                 var obj = data[i];
-                var dateTrans = new Date(obj.datetime);
-                if (sameDay(dateTrans, DatatransactionDate)) {
-                    CountTransaction++;
-                    // if (obj.request_body.indexOf('tranferAmount') >= 0) {
-                    //     CountTransaction++;
-                    // } else if (obj.request_body.indexOf('amount') >= 0) {
-                    //     CountTransaction++;
-                    // }
-                    if (obj.status_code.indexOf("200 OK") >= 0) {
-                        SuccessCount++;
-                        if (obj.request_body.indexOf('tranferAmount') >= 0) {
-                            var objectRequest = ParseToJson(obj.request_body);
-                            if (objectRequest != "") {
-                                if (obj.request_body.indexOf('fastTransfer') >= 0) {
-                                    TotalAmount += ParseToFloat(objectRequest.data.fastTransfer.tranferAmount);
-                                } else if (obj.request_body.indexOf('externalTransfer') >= 0) {
-                                    TotalAmount += ParseToFloat(objectRequest.data.externalTransfer.tranferAmount);
-                                } else if (obj.request_body.indexOf('internalTransfer') >= 0) {
-                                    TotalAmount += ParseToFloat(objectRequest.data.internalTransfer.tranferAmount);
-                                } else if (obj.request_body.indexOf('billPaymentInfo') >= 0) {
-                                    TotalAmount += ParseToFloat(objectRequest.data.billPaymentInfo.tranferAmount);
-                                } else if (obj.request_body.indexOf('batchPayment') >= 0) {
-                                    if (objectRequest.data.batchPayment.batchItem != undefined) {
-                                        for (var j = 0; j < objectRequest.data.batchPayment.batchItem.length; j++) {
-                                            TotalAmount += ParseToFloat(objectRequest.data.batchPayment.batchItem[j].tranferAmount);
+                if (selectFilter == '') {
+                    var dateTrans = new Date(obj.datetime);
+                    if (sameDay(dateTrans, DatatransactionDate)) {
+                        CountTransaction++;
+                        // if (obj.request_body.indexOf('tranferAmount') >= 0) {
+                        //     CountTransaction++;
+                        // } else if (obj.request_body.indexOf('amount') >= 0) {
+                        //     CountTransaction++;
+                        // }
+                        if (obj.status_code.indexOf("200 OK") >= 0) {
+                            SuccessCount++;
+                            if (obj.request_body.indexOf('tranferAmount') >= 0) {
+                                var objectRequest = ParseToJson(obj.request_body);
+                                if (objectRequest != "") {
+                                    if (obj.request_body.indexOf('fastTransfer') >= 0) {
+                                        TotalAmount += ParseToFloat(objectRequest.data.fastTransfer.tranferAmount);
+                                    } else if (obj.request_body.indexOf('externalTransfer') >= 0) {
+                                        TotalAmount += ParseToFloat(objectRequest.data.externalTransfer.tranferAmount);
+                                    } else if (obj.request_body.indexOf('internalTransfer') >= 0) {
+                                        TotalAmount += ParseToFloat(objectRequest.data.internalTransfer.tranferAmount);
+                                    } else if (obj.request_body.indexOf('billPaymentInfo') >= 0) {
+                                        TotalAmount += ParseToFloat(objectRequest.data.billPaymentInfo.tranferAmount);
+                                    } else if (obj.request_body.indexOf('batchPayment') >= 0) {
+                                        if (objectRequest.data.batchPayment.batchItem != undefined) {
+                                            for (var j = 0; j < objectRequest.data.batchPayment.batchItem.length; j++) {
+                                                TotalAmount += ParseToFloat(objectRequest.data.batchPayment.batchItem[j].tranferAmount);
+                                            }
+                                        }
+                                    }
+                                }
+                            } else if (obj.request_body.indexOf('amount') >= 0) {
+                                var objectRequest = ParseToJson(obj.request_body);
+                                if (objectRequest != "") {
+                                    if (obj.request_body.indexOf('fastTransfer') >= 0) {
+                                        TotalAmount += ParseToFloat(objectRequest.data.fastTransfer.amount);
+                                    } else if (obj.request_body.indexOf('externalTransfer') >= 0) {
+                                        TotalAmount += ParseToFloat(objectRequest.data.externalTransfer.amount);
+                                    } else if (obj.request_body.indexOf('internalTransfer') >= 0) {
+                                        TotalAmount += ParseToFloat(objectRequest.data.internalTransfer.amount);
+                                    } else if (obj.request_body.indexOf('billPaymentInfo') >= 0) {
+                                        TotalAmount += ParseToFloat(objectRequest.data.billPaymentInfo.amount);
+                                    } else if (obj.request_body.indexOf('batchPayment') >= 0) {
+                                        if (objectRequest.data.batchPayment.batchItem != undefined) {
+                                            for (var j = 0; j < objectRequest.data.batchPayment.batchItem.length; j++) {
+                                                TotalAmount += ParseToFloat(objectRequest.data.batchPayment.batchItem[j].amount);
+                                            }
                                         }
                                     }
                                 }
                             }
-                        } else if (obj.request_body.indexOf('amount') >= 0) {
-                            var objectRequest = ParseToJson(obj.request_body);
-                            if (objectRequest != "") {
-                                if (obj.request_body.indexOf('fastTransfer') >= 0) {
-                                    TotalAmount += ParseToFloat(objectRequest.data.fastTransfer.amount);
-                                } else if (obj.request_body.indexOf('externalTransfer') >= 0) {
-                                    TotalAmount += ParseToFloat(objectRequest.data.externalTransfer.amount);
-                                } else if (obj.request_body.indexOf('internalTransfer') >= 0) {
-                                    TotalAmount += ParseToFloat(objectRequest.data.internalTransfer.amount);
-                                } else if (obj.request_body.indexOf('billPaymentInfo') >= 0) {
-                                    TotalAmount += ParseToFloat(objectRequest.data.billPaymentInfo.amount);
-                                } else if (obj.request_body.indexOf('batchPayment') >= 0) {
-                                    if (objectRequest.data.batchPayment.batchItem != undefined) {
-                                        for (var j = 0; j < objectRequest.data.batchPayment.batchItem.length; j++) {
-                                            TotalAmount += ParseToFloat(objectRequest.data.batchPayment.batchItem[j].amount);
+                        } else {
+                            FailedCount++;
+                            if (obj.request_body.indexOf('tranferAmount') >= 0) {
+                                var objectRequest = ParseToJson(obj.request_body);
+                                if (objectRequest != "") {
+                                    if (obj.request_body.indexOf('fastTransfer') >= 0) {
+                                        PreTotalAmount += ParseToFloat(objectRequest.data.fastTransfer.tranferAmount);
+                                    } else if (obj.request_body.indexOf('externalTransfer') >= 0) {
+                                        PreTotalAmount += ParseToFloat(objectRequest.data.externalTransfer.tranferAmount);
+                                    } else if (obj.request_body.indexOf('internalTransfer') >= 0) {
+                                        PreTotalAmount += ParseToFloat(objectRequest.data.internalTransfer.tranferAmount);
+                                    } else if (obj.request_body.indexOf('billPaymentInfo') >= 0) {
+                                        PreTotalAmount += ParseToFloat(objectRequest.data.billPaymentInfo.tranferAmount);
+                                    } else if (obj.request_body.indexOf('batchPayment') >= 0) {
+                                        if (objectRequest.data.batchPayment.batchItem != undefined) {
+                                            for (var j = 0; j < objectRequest.data.batchPayment.batchItem.length; j++) {
+                                                PreTotalAmount += ParseToFloat(objectRequest.data.batchPayment.batchItem[j].tranferAmount);
+                                            }
                                         }
                                     }
                                 }
-                            }
-                        }
-                    } else {
-                        FailedCount++;
-                        if (obj.request_body.indexOf('tranferAmount') >= 0) {
-                            var objectRequest = ParseToJson(obj.request_body);
-                            if (objectRequest != "") {
-                                if (obj.request_body.indexOf('fastTransfer') >= 0) {
-                                    PreTotalAmount += ParseToFloat(objectRequest.data.fastTransfer.tranferAmount);
-                                } else if (obj.request_body.indexOf('externalTransfer') >= 0) {
-                                    PreTotalAmount += ParseToFloat(objectRequest.data.externalTransfer.tranferAmount);
-                                } else if (obj.request_body.indexOf('internalTransfer') >= 0) {
-                                    PreTotalAmount += ParseToFloat(objectRequest.data.internalTransfer.tranferAmount);
-                                } else if (obj.request_body.indexOf('billPaymentInfo') >= 0) {
-                                    PreTotalAmount += ParseToFloat(objectRequest.data.billPaymentInfo.tranferAmount);
-                                } else if (obj.request_body.indexOf('batchPayment') >= 0) {
-                                    if (objectRequest.data.batchPayment.batchItem != undefined) {
-                                        for (var j = 0; j < objectRequest.data.batchPayment.batchItem.length; j++) {
-                                            PreTotalAmount += ParseToFloat(objectRequest.data.batchPayment.batchItem[j].tranferAmount);
-                                        }
-                                    }
-                                }
-                            }
-                        } else if (obj.request_body.indexOf('amount') >= 0) {
-                            var objectRequest = ParseToJson(obj.request_body);
-                            if (objectRequest != "") {
-                                if (obj.request_body.indexOf('fastTransfer') >= 0) {
-                                    PreTotalAmount += ParseToFloat(objectRequest.data.fastTransfer.amount);
-                                } else if (obj.request_body.indexOf('externalTransfer') >= 0) {
-                                    PreTotalAmount += ParseToFloat(objectRequest.data.externalTransfer.amount);
-                                } else if (obj.request_body.indexOf('internalTransfer') >= 0) {
-                                    PreTotalAmount += ParseToFloat(objectRequest.data.internalTransfer.amount);
-                                } else if (obj.request_body.indexOf('billPaymentInfo') >= 0) {
-                                    PreTotalAmount += ParseToFloat(objectRequest.data.billPaymentInfo.amount);
-                                } else if (obj.request_body.indexOf('batchPayment') >= 0) {
-                                    if (objectRequest.data.batchPayment.batchItem != undefined) {
-                                        for (var j = 0; j < objectRequest.data.batchPayment.batchItem.length; j++) {
-                                            PreTotalAmount += ParseToFloat(objectRequest.data.batchPayment.batchItem[j].amount);
+                            } else if (obj.request_body.indexOf('amount') >= 0) {
+                                var objectRequest = ParseToJson(obj.request_body);
+                                if (objectRequest != "") {
+                                    if (obj.request_body.indexOf('fastTransfer') >= 0) {
+                                        PreTotalAmount += ParseToFloat(objectRequest.data.fastTransfer.amount);
+                                    } else if (obj.request_body.indexOf('externalTransfer') >= 0) {
+                                        PreTotalAmount += ParseToFloat(objectRequest.data.externalTransfer.amount);
+                                    } else if (obj.request_body.indexOf('internalTransfer') >= 0) {
+                                        PreTotalAmount += ParseToFloat(objectRequest.data.internalTransfer.amount);
+                                    } else if (obj.request_body.indexOf('billPaymentInfo') >= 0) {
+                                        PreTotalAmount += ParseToFloat(objectRequest.data.billPaymentInfo.amount);
+                                    } else if (obj.request_body.indexOf('batchPayment') >= 0) {
+                                        if (objectRequest.data.batchPayment.batchItem != undefined) {
+                                            for (var j = 0; j < objectRequest.data.batchPayment.batchItem.length; j++) {
+                                                PreTotalAmount += ParseToFloat(objectRequest.data.batchPayment.batchItem[j].amount);
+                                            }
                                         }
                                     }
                                 }
@@ -309,7 +366,102 @@
                         }
                     }
                 }
-
+                else {
+                    if (obj.api_name == selectFilter) {
+                        var dateTrans = new Date(obj.datetime);
+                        if (sameDay(dateTrans, DatatransactionDate)) {
+                            CountTransaction++;
+                            // if (obj.request_body.indexOf('tranferAmount') >= 0) {
+                            //     CountTransaction++;
+                            // } else if (obj.request_body.indexOf('amount') >= 0) {
+                            //     CountTransaction++;
+                            // }
+                            if (obj.status_code.indexOf("200 OK") >= 0) {
+                                SuccessCount++;
+                                if (obj.request_body.indexOf('tranferAmount') >= 0) {
+                                    var objectRequest = ParseToJson(obj.request_body);
+                                    if (objectRequest != "") {
+                                        if (obj.request_body.indexOf('fastTransfer') >= 0) {
+                                            TotalAmount += ParseToFloat(objectRequest.data.fastTransfer.tranferAmount);
+                                        } else if (obj.request_body.indexOf('externalTransfer') >= 0) {
+                                            TotalAmount += ParseToFloat(objectRequest.data.externalTransfer.tranferAmount);
+                                        } else if (obj.request_body.indexOf('internalTransfer') >= 0) {
+                                            TotalAmount += ParseToFloat(objectRequest.data.internalTransfer.tranferAmount);
+                                        } else if (obj.request_body.indexOf('billPaymentInfo') >= 0) {
+                                            TotalAmount += ParseToFloat(objectRequest.data.billPaymentInfo.tranferAmount);
+                                        } else if (obj.request_body.indexOf('batchPayment') >= 0) {
+                                            if (objectRequest.data.batchPayment.batchItem != undefined) {
+                                                for (var j = 0; j < objectRequest.data.batchPayment.batchItem.length; j++) {
+                                                    TotalAmount += ParseToFloat(objectRequest.data.batchPayment.batchItem[j].tranferAmount);
+                                                }
+                                            }
+                                        }
+                                    }
+                                } else if (obj.request_body.indexOf('amount') >= 0) {
+                                    var objectRequest = ParseToJson(obj.request_body);
+                                    if (objectRequest != "") {
+                                        if (obj.request_body.indexOf('fastTransfer') >= 0) {
+                                            TotalAmount += ParseToFloat(objectRequest.data.fastTransfer.amount);
+                                        } else if (obj.request_body.indexOf('externalTransfer') >= 0) {
+                                            TotalAmount += ParseToFloat(objectRequest.data.externalTransfer.amount);
+                                        } else if (obj.request_body.indexOf('internalTransfer') >= 0) {
+                                            TotalAmount += ParseToFloat(objectRequest.data.internalTransfer.amount);
+                                        } else if (obj.request_body.indexOf('billPaymentInfo') >= 0) {
+                                            TotalAmount += ParseToFloat(objectRequest.data.billPaymentInfo.amount);
+                                        } else if (obj.request_body.indexOf('batchPayment') >= 0) {
+                                            if (objectRequest.data.batchPayment.batchItem != undefined) {
+                                                for (var j = 0; j < objectRequest.data.batchPayment.batchItem.length; j++) {
+                                                    TotalAmount += ParseToFloat(objectRequest.data.batchPayment.batchItem[j].amount);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+                                FailedCount++;
+                                if (obj.request_body.indexOf('tranferAmount') >= 0) {
+                                    var objectRequest = ParseToJson(obj.request_body);
+                                    if (objectRequest != "") {
+                                        if (obj.request_body.indexOf('fastTransfer') >= 0) {
+                                            PreTotalAmount += ParseToFloat(objectRequest.data.fastTransfer.tranferAmount);
+                                        } else if (obj.request_body.indexOf('externalTransfer') >= 0) {
+                                            PreTotalAmount += ParseToFloat(objectRequest.data.externalTransfer.tranferAmount);
+                                        } else if (obj.request_body.indexOf('internalTransfer') >= 0) {
+                                            PreTotalAmount += ParseToFloat(objectRequest.data.internalTransfer.tranferAmount);
+                                        } else if (obj.request_body.indexOf('billPaymentInfo') >= 0) {
+                                            PreTotalAmount += ParseToFloat(objectRequest.data.billPaymentInfo.tranferAmount);
+                                        } else if (obj.request_body.indexOf('batchPayment') >= 0) {
+                                            if (objectRequest.data.batchPayment.batchItem != undefined) {
+                                                for (var j = 0; j < objectRequest.data.batchPayment.batchItem.length; j++) {
+                                                    PreTotalAmount += ParseToFloat(objectRequest.data.batchPayment.batchItem[j].tranferAmount);
+                                                }
+                                            }
+                                        }
+                                    }
+                                } else if (obj.request_body.indexOf('amount') >= 0) {
+                                    var objectRequest = ParseToJson(obj.request_body);
+                                    if (objectRequest != "") {
+                                        if (obj.request_body.indexOf('fastTransfer') >= 0) {
+                                            PreTotalAmount += ParseToFloat(objectRequest.data.fastTransfer.amount);
+                                        } else if (obj.request_body.indexOf('externalTransfer') >= 0) {
+                                            PreTotalAmount += ParseToFloat(objectRequest.data.externalTransfer.amount);
+                                        } else if (obj.request_body.indexOf('internalTransfer') >= 0) {
+                                            PreTotalAmount += ParseToFloat(objectRequest.data.internalTransfer.amount);
+                                        } else if (obj.request_body.indexOf('billPaymentInfo') >= 0) {
+                                            PreTotalAmount += ParseToFloat(objectRequest.data.billPaymentInfo.amount);
+                                        } else if (obj.request_body.indexOf('batchPayment') >= 0) {
+                                            if (objectRequest.data.batchPayment.batchItem != undefined) {
+                                                for (var j = 0; j < objectRequest.data.batchPayment.batchItem.length; j++) {
+                                                    PreTotalAmount += ParseToFloat(objectRequest.data.batchPayment.batchItem[j].amount);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
             //}
             if (CountTransaction > 0) {
@@ -338,63 +490,164 @@
         }
         return returndata;
     }
+    function ConvertCodeDateString(datetimeRq) {
+        return datetimeRq.getDate() + "/" + datetimeRq.getMonth() + "/" + datetimeRq.getFullYear() + " " + datetimeRq.getHours() + datetimeRq + ":" + datetimeRq.getMinutes() + ":" + datetimeRq.getSeconds();
+    }
 
     function BuilDataListTransaction(data) {
+        var selectFilter = $('#filterselect').val();
         var transactionList = [];
         for (var i = 0; i < data.length; i++) {
-            var obj = data[i];
-            if (obj.request_body.indexOf('fastTransfer') >= 0 || obj.request_body.indexOf('externalTransfer') >= 0 || obj.request_body.indexOf('internalTransfer') >= 0 || obj.request_body.indexOf('billPaymentInfo') >= 0) {
-                var transId = '';
-                var TransactionType = '';
-                var Card_AccountNum = '';
-                var TransactionTime = new Date(obj.datetime).toGMTString();
-                var Status = '';
-                var Amount = 0;
-                var Description = '';
-                var requestObject = ParseToJson(obj.request_body);
-                transId = requestObject.trace.clientTransId;
-                TransactionType = obj.request_method;
-                if (obj.request_body.indexOf('fastTransfer') >= 0) {
-                    Card_AccountNum = requestObject.data.fastTransfer.sourceAccountNumber;
-                    Amount = requestObject.data.fastTransfer.tranferAmount;
-                    Description = requestObject.data.fastTransfer.transferDescription;
-                } else if (obj.request_body.indexOf('externalTransfer') >= 0) {
-                    Card_AccountNum = requestObject.data.externalTransfer.sourceAccountNumber;
-                    Amount = requestObject.data.externalTransfer.tranferAmount;
-                    Description = requestObject.data.externalTransfer.transferDescription;
-                } else if (obj.request_body.indexOf('internalTransfer') >= 0) {
-                    Card_AccountNum = requestObject.data.internalTransfer.sourceAccountNumber;
-                    Amount = requestObject.data.internalTransfer.tranferAmount;
-                    Description = requestObject.data.internalTransfer.transferDescription;
-                } else if (obj.request_body.indexOf('billPaymentInfo') >= 0) {
-                    Card_AccountNum = requestObject.data.billPaymentInfo.debitAccount;
-                    Amount = requestObject.data.billPaymentInfo.amount;
-                    Description = requestObject.data.billPaymentInfo.transferDescription;
-                } else if (obj.request_body.indexOf('batchPayment') >= 0) {
-                    if (requestObject.data.batchPayment.batchItem != undefined) {
-                        for (var j = 0; j < requestObject.data.batchPayment.batchItem.length; j++) {
-                            Card_AccountNum += requestObject.data.batchPayment.batchItem[j].payeeAccountNumber + ";";
-                            Amount += ParseToFloat(requestObject.data.batchPayment.batchItem[j].amount);
-                            Description += requestObject.data.batchPayment.batchItem[j].paymentDescription + ";";
+            if (selectFilter == '') {
+                var obj = data[i];
+                if (obj.request_body.indexOf('fastTransfer') >= 0 || obj.request_body.indexOf('externalTransfer') >= 0 || obj.request_body.indexOf('internalTransfer') >= 0 || obj.request_body.indexOf('billPaymentInfo') >= 0) {
+                    var transId = '';
+                    var TransactionType = '';
+                    var transName = ''
+                    var ApiName = '';
+                    var BankCode = '';
+                    var Card_AccountNum = '';
+                    var Card_AccountNumTo = '';
+                    var BillCode = '';
+                    var TransactionTime = new Date(obj.datetime).ConvertCodeStringDate(7);
+                    var Status = '';
+                    var Amount = 0;
+                    var Description = '';
+                    var requestObject = ParseToJson(obj.request_body);
+                    transId = requestObject.trace.clientTransId;
+                    TransactionType = obj.request_method;
+                    ApiName = obj.api_name;
+                    if (obj.request_body.indexOf('fastTransfer') >= 0) {
+                        transName = "Fast Transfer";
+                        Card_AccountNum = requestObject.data.fastTransfer.sourceAccountNumber;
+                        Card_AccountNumTo = requestObject.data.fastTransfer.payeeAccountNumber != '' ? requestObject.data.fastTransfer.payeeAccountNumber : requestObject.data.fastTransfer.payeeCardNumber;
+                        BankCode = requestObject.data.fastTransfer.bankCode;
+                        Amount = requestObject.data.fastTransfer.tranferAmount;
+                        Description = requestObject.data.fastTransfer.transferDescription;
+                    } else if (obj.request_body.indexOf('externalTransfer') >= 0) {
+                        transName = "External Transfer";
+                        Card_AccountNum = requestObject.data.externalTransfer.sourceAccountNumber;
+                        Card_AccountNumTo = requestObject.data.externalTransfer.payeeAccountNumber;
+                        BankCode = requestObject.data.externalTransfer.payeeBankId;
+                        Amount = requestObject.data.externalTransfer.tranferAmount;
+                        Description = requestObject.data.externalTransfer.transferDescription;
+                    } else if (obj.request_body.indexOf('internalTransfer') >= 0) {
+                        transName = "Internal Transfer";
+                        Card_AccountNum = requestObject.data.internalTransfer.fromAccountNumber;
+                        Card_AccountNumTo = requestObject.data.internalTransfer.toAccountNumber;
+                        Amount = requestObject.data.internalTransfer.tranferAmount;
+                        Description = requestObject.data.internalTransfer.transferDescription;
+                    } else if (obj.request_body.indexOf('billPaymentInfo') >= 0) {
+                        transName = "Bill Payment";
+                        Card_AccountNum = requestObject.data.billPaymentInfo.debitAccount;
+                        BillCode = requestObject.data.billPaymentInfo.billCode;
+                        Amount = requestObject.data.billPaymentInfo.amount;
+                        Description = requestObject.data.billPaymentInfo.transferDescription;
+                    } else if (obj.request_body.indexOf('batchPayment') >= 0) {
+                        transName = "Batch Payment";
+                        if (requestObject.data.batchPayment.batchItem != undefined) {
+                            for (var j = 0; j < requestObject.data.batchPayment.batchItem.length; j++) {
+                                Card_AccountNum += requestObject.data.batchPayment.batchItem[j].payeeAccountNumber + ";";
+                                Amount += ParseToFloat(requestObject.data.batchPayment.batchItem[j].amount);
+                                Description += requestObject.data.batchPayment.batchItem[j].paymentDescription + ";";
+                            }
                         }
                     }
+                    Status = obj.status_code;
+                    transactionList.push({
+                        "Trans Id": transId,
+                        //"Trans Type": TransactionType,
+                        "Trans Type": transName,
+                        "API Name": ApiName,
+                        "Card/Account No From": Card_AccountNum,
+                        "Card/Account No To": Card_AccountNumTo,
+                        "Bill Code": BillCode,
+                        "Trans Date": TransactionTime,
+                        "Status": Status,
+                        "Trans Amount": Amount,
+                        "Trans Desc": Description
+                    });
                 }
-                Status = obj.status_code;
-                transactionList.push({
-                    "Trans Id": transId,
-                    "Trans Type": TransactionType,
-                    "Card/Account No": Card_AccountNum,
-                    "Trans Date": TransactionTime,
-                    "Status": Status,
-                    "Trans Amount": Amount,
-                    "Trans Desc": Description
-                });
+            }
+            else {
+                if (obj.api_name == selectFilter) {
+                    var obj = data[i];
+                    if (obj.request_body.indexOf('fastTransfer') >= 0 || obj.request_body.indexOf('externalTransfer') >= 0 || obj.request_body.indexOf('internalTransfer') >= 0 || obj.request_body.indexOf('billPaymentInfo') >= 0) {
+                        var transId = '';
+                        var TransactionType = '';
+                        var transName = ''
+                        var ApiName = '';
+                        var BankCode = '';
+                        var Card_AccountNum = '';
+                        var Card_AccountNumTo = '';
+                        var BillCode = '';
+                        var TransactionTime = new Date(obj.datetime).ConvertCodeStringDate(7);
+                        var Status = '';
+                        var Amount = 0;
+                        var Description = '';
+                        var requestObject = ParseToJson(obj.request_body);
+                        transId = requestObject.trace.clientTransId;
+                        TransactionType = obj.request_method;
+                        ApiName = obj.api_name;
+                        if (obj.request_body.indexOf('fastTransfer') >= 0) {
+                            transName = "Fast Transfer";
+                            Card_AccountNum = requestObject.data.fastTransfer.sourceAccountNumber;
+                            Card_AccountNumTo = requestObject.data.fastTransfer.payeeAccountNumber != '' ? requestObject.data.fastTransfer.payeeAccountNumber : requestObject.data.fastTransfer.payeeCardNumber;
+                            BankCode = requestObject.data.fastTransfer.bankCode;
+                            Amount = requestObject.data.fastTransfer.tranferAmount;
+                            Description = requestObject.data.fastTransfer.transferDescription;
+                        } else if (obj.request_body.indexOf('externalTransfer') >= 0) {
+                            transName = "External Transfer";
+                            Card_AccountNum = requestObject.data.externalTransfer.sourceAccountNumber;
+                            Card_AccountNumTo = requestObject.data.externalTransfer.payeeAccountNumber;
+                            BankCode = requestObject.data.externalTransfer.payeeBankId;
+                            Amount = requestObject.data.externalTransfer.tranferAmount;
+                            Description = requestObject.data.externalTransfer.transferDescription;
+                        } else if (obj.request_body.indexOf('internalTransfer') >= 0) {
+                            transName = "Internal Transfer";
+                            Card_AccountNum = requestObject.data.internalTransfer.fromAccountNumber;
+                            Card_AccountNumTo = requestObject.data.internalTransfer.toAccountNumber;
+                            Amount = requestObject.data.internalTransfer.tranferAmount;
+                            Description = requestObject.data.internalTransfer.transferDescription;
+                        } else if (obj.request_body.indexOf('billPaymentInfo') >= 0) {
+                            transName = "Bill Payment";
+                            Card_AccountNum = requestObject.data.billPaymentInfo.debitAccount;
+                            BillCode = requestObject.data.billPaymentInfo.billCode;
+                            Amount = requestObject.data.billPaymentInfo.amount;
+                            Description = requestObject.data.billPaymentInfo.transferDescription;
+                        } else if (obj.request_body.indexOf('batchPayment') >= 0) {
+                            transName = "Batch Payment";
+                            if (requestObject.data.batchPayment.batchItem != undefined) {
+                                for (var j = 0; j < requestObject.data.batchPayment.batchItem.length; j++) {
+                                    Card_AccountNum += requestObject.data.batchPayment.batchItem[j].payeeAccountNumber + ";";
+                                    Amount += ParseToFloat(requestObject.data.batchPayment.batchItem[j].amount);
+                                    Description += requestObject.data.batchPayment.batchItem[j].paymentDescription + ";";
+                                }
+                            }
+                        }
+                        Status = obj.status_code;
+                        transactionList.push({
+                            "Trans Id": transId,
+                            //"Trans Type": TransactionType,
+                            "Trans Type": transName,
+                            "API Name": ApiName,
+                            "Card/Account No From": Card_AccountNum,
+                            "Card/Account No To": Card_AccountNumTo,
+                            "Bill Code": BillCode,
+                            "Trans Date": TransactionTime,
+                            "Status": Status,
+                            "Trans Amount": Amount,
+                            "Trans Desc": Description
+                        });
+                    }
+                }
             }
         }
         return transactionList;
     }
 
     function BuildCanvasChart(transactionsumary) {
+        myBar.destroy();
         var aXisX = [];
         transactionsumary.forEach(element => {
             aXisX.push(element['Trans Date']);
@@ -406,7 +659,7 @@
             datapointSummarySuccess.push(element['Success Trans']);
         });
         var color = Chart.helpers.color;
-        var barChartData = {
+        barChartData = {
             labels: aXisX,
             datasets: [{
                 label: 'Failed Trans',
@@ -424,7 +677,7 @@
 
         };
         var ctx = document.getElementById('canvas').getContext('2d');
-        window.myBar = new Chart(ctx, {
+        myBar = new Chart(ctx, {
             type: 'bar',
             data: barChartData,
             options: {
@@ -438,6 +691,7 @@
                 }
             }
         });
+
         //window.myBar.update();
     }
 
@@ -446,6 +700,9 @@
             format: 'yyyy-mm-dd'
         });
         $('#btnSearch').click(function () {
+            CallAPI();
+        });
+        $('#filterselect').change(function () {
             CallAPI();
         });
         $('#size').change(function () {
