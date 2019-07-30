@@ -8,6 +8,7 @@
         purple: 'rgb(153, 102, 255)',
         grey: 'rgb(201, 203, 207)'
     };
+    var ctx = document.getElementById('canvas').getContext('2d');
     var barChartData = {
         labels: [],
         datasets: []
@@ -676,7 +677,7 @@
             }]
 
         };
-        var ctx = document.getElementById('canvas').getContext('2d');
+        
         myBar = new Chart(ctx, {
             type: 'bar',
             data: barChartData,
