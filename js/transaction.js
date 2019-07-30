@@ -128,7 +128,13 @@
             var founded = selectOption.find(function (element) {
                 return element == ApiName;
             });
-            if (founded.length == 0) {
+            if (founded != undefined) {
+                if (founded.length == 0) {
+                    selectOption.push(ApiName);
+                }
+            }
+            else
+            {
                 selectOption.push(ApiName);
             }
         }
@@ -677,7 +683,7 @@
             }]
 
         };
-        
+
         myBar = new Chart(ctx, {
             type: 'bar',
             data: barChartData,
