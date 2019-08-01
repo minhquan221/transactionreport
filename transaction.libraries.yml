@@ -2,6 +2,7 @@ transactionmanager:
     version: 1.x
     css:
         base:
+            css/font-awesome.css: {}
             css/bootstrap-datepicker.css: {}
             css/addons/datatables.css: {}
             css/mdb.css: {}
