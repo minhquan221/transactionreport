@@ -31,32 +31,34 @@ table#log thead tr th {
 
 .table {
     border: solid 1px #DDEEEE;
-    /* max-width: 75%;
+    max-width: 75%;
     margin: 0 auto;
     border-collapse: collapse;
     border-spacing: 0;
-    font-family: "Open Sans", Helvetica, Arial, sans-serif; */
+    font-family: "Open Sans", Helvetica, Arial, sans-serif;
 }
 
 .table thead th {
     background-color: #008c44;
     border: solid 1px #DDEEEE;
     color: #fff;
-    /* padding-top: 15px;
+    padding-top: 15px;
     padding-bottom: 15px;
     text-align: center;
     white-space: nowrap;
     vertical-align: middle;
-    font-size: 12px; */
+    font-size: 12px;
 }
 
 .table tbody td {
     border: solid 1px #DDEEEE;
     color: #333;
-    /* padding: 5px;
-    white-space: nowrap; */
+    padding: 5px;
+    white-space: nowrap;
 }
 
+
+/* 
 table.dataTable thead .sorting:before,
 table.dataTable thead .sorting_asc:before,
 table.dataTable thead .sorting_asc_disabled:before,
@@ -79,4 +81,4 @@ table.dataTable thead .sorting_desc_disabled:after {
     font-weight: 900;
     right: 16px;
     font-size: 1rem;
-}
+} */

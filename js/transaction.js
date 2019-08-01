@@ -200,10 +200,10 @@
                             buildBody(transationSumary[i], 'lstSumary');
                         }
                     }
-                    $('#lstSumary').DataTable({
-                        "scrollX": true,
-                        "scrollY": 400,
-                    });
+                    // $('#lstSumary').DataTable({
+                    //     "scrollX": true,
+                    //     "scrollY": 400,
+                    // });
                     BuildCanvasChart(transationSumary);
                     var transactionList = BuilDataListTransaction(data);
                     if (transactionList.length > 0) {
@@ -212,10 +212,10 @@
                             buildBody(transactionList[i], 'lst');
                         }
                     }
-                    $('#lst').DataTable({
-                        "scrollX": true,
-                        "scrollY": 400,
-                    });
+                    // $('#lst').DataTable({
+                    //     "scrollX": true,
+                    //     "scrollY": 400,
+                    // });
                     // buildHeader(objSerialize.responses[0].hits.hits[0]._source, 'log');
                     // for (var i = 0; i < objSerialize.responses[0].hits.hits.length; i++) {
                     //     buildBody(objSerialize.responses[0].hits.hits[i]._source, 'log');
