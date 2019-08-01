@@ -1,99 +1,179 @@
-<h1>Transaction Manager</h1>
+<div class="applicationWrapper ibmapimAnalytics ibmapimAppAnalytics">
+    <header class="titleSection">
+        <div class="titleInnerWrapper">
+            <div class="leftTitle">
+                <div class="breadcrumb">
+                    <a href="{{- path('view.applications.page_1') }}">
+                        {{ 'Applications'|t }}</a>
+                </div>
+                <div class="applicationTitle">
+                    <div class="applicationLogo">
+                        {% if node.image is defined and node.image|trim is not empty %}
+                            <div class="apicAppIcon">
+                                <img src="{{- node.image -}}" alt=""/>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <h1 class="applicationName">{{- node.title -}}</h1>
 
-<div id="apiTable" style="margin-top: 30px;">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="form-group row">
-                <label class="col-md-2 col-form-label">From Date:</label>
-                <div class="col-md-6">
-                    <div class="form-group" style="width: 60px;">
-                        <div class="input-group date">
-                            <input readonly autocomplete="off" class="form-control datepicker" id="fromDate" name="fromDate" style="background-color: white;opacity: 1;width: 160px;padding-right: 0px !important;" type="text">
-                            <span class="input-group-addon" style="margin-right: 0px;position: absolute;right: 1px;z-index: 10;width: 39px;border-bottom-right-radius: var(--border-radius-input);border-top-right-radius: var(--border-radius-input);cursor: pointer;margin: 1px;height: 30px;">
-                                <span class="glyphicon glyphicon-calendar"></span>
-                            </span>
+                </div>
+            </div>
+            <div class="rightTitle">
+                {% if applifecycleEnabled and userHasAppManage %}
+                    <div class="apicAppLifecycle apicAppActions">
+                        {% if node.application_lifecycle_state|upper == 'DEVELOPMENT' %}
+                            {% if node.application_lifecycle_pending is not defined or node.application_lifecycle_pending is empty %}
+                                <a href="{{- path('apic_app.promote', {'appId': node.application_id}) -}}" class="button apicUpgradeApp" title="{{ 'Upgrade to production'|t }}">{{ 'Upgrade to production'|t }}</a>
+                            {% else %}
+                                <span>{{ 'Pending Upgrade'|t }}</span>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                {% endif %}
+                {% if userHasAppManage %}
+                    <div class="extraMenu">
+                        <ul class="overflow-menu applicationMenu dropitmenu">
+                            <li title="{{ 'Manage application'|t }}">
+                                <a class="trigger" href="#">
+                                    <span class="dropit-icon">
+                                        <svg fill-rule="evenodd" height="20px" version="1.1" viewbox="0 0 4 20" width="4px" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+                                            <circle cx="2" cy="2" id="Oval" r="2"></circle>
+                                            <circle cx="2" cy="10" id="Oval" r="2"></circle>
+                                            <circle cx="2" cy="18" id="Oval" r="2"></circle>
+                                        </svg>
+                                    </span>
+                                </a>
+                                <ul class="dropitmenu-submenu">
+                                    <li class="editApplication">
+                                        <a href="{{ path('apic_app.update', {'appId': node.application_id}) }}" title="{{ 'Edit App'|t }}">{{ 'Edit'|t }}</a>
+                                    </li>
+                                    {% if appImageUploadEnabled %}
+                                        <li class="uploadImage">
+                                            <a href="{{ path('apic_app.image_upload', {'appId': node.application_id}) }}" title="{{ 'Upload image'|t }}">{{ 'Upload image'|t }}</a>
+                                        </li>
+                                    {% endif %}
+                                    <li class="deleteApplication">
+                                        <a href="{{ path('apic_app.delete', {'appId': node.application_id}) }}" title="{{ 'Delete App'|t }}">{{ 'Delete'|t }}</a>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="applicationTabs">
+                <ul>
+                    <li>
+                        <a class="analyticsApplication" href="{{- path('entity.node.canonical', {'node': node.id}) -}}">{{ 'Dashboard'|t }}</a>
+                    </li>
+                    <li>
+                        <a class="subscriptionsApplication" href="{{- path('apic_app.subscriptions', {'node': node.id}) -}}">{{ 'Subscriptions'|t }}</a>
+                    </li>
+                    <li class="selected">
+                        <a class="subscriptionsApplication" href="javascript:void(0)">Transaction and sale report</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </header>
+    <div class="contentInnerWrapper">
+        <div id="apiTable" style="margin-top: 30px;">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group row">
+                        <label class="col-md-2 col-form-label">From Date:</label>
+                        <div class="col-md-6">
+                            <div class="form-group" style="width: 60px;">
+                                <div class="input-group date">
+                                    <input autocomplete="off" class="form-control datepicker" id="fromDate" name="fromDate" readonly style="background-color: white;opacity: 1;width: 160px;padding-right: 0px !important;" type="text">
+                                    <span class="input-group-addon" style="margin-right: 0px;position: absolute;right: 1px;z-index: 10;width: 39px;border-bottom-right-radius: var(--border-radius-input);border-top-right-radius: var(--border-radius-input);cursor: pointer;margin: 1px;height: 30px;">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-            <div class="form-group row">
-                <label class="col-md-2 col-form-label">To Date:</label>
-                <div class="col-md-6">
-                    <div class="form-group" style="width: 60px;">
-                        <div class="input-group date">
-                            <input readonly autocomplete="off" class="form-control datepicker" id="toDate" name="toDate" style="background-color: white;opacity: 1;width: 160px;padding-right: 0px !important;" type="text">
-                            <span class="input-group-addon" style="margin-right: 0px;position: absolute;right: 1px;z-index: 10;width: 39px;border-bottom-right-radius: var(--border-radius-input);border-top-right-radius: var(--border-radius-input);cursor: pointer;margin: 1px;height: 30px;">
-                                <span class="glyphicon glyphicon-calendar"></span>
-                            </span>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group row">
+                        <label class="col-md-2 col-form-label">To Date:</label>
+                        <div class="col-md-6">
+                            <div class="form-group" style="width: 60px;">
+                                <div class="input-group date">
+                                    <input autocomplete="off" class="form-control datepicker" id="toDate" name="toDate" readonly style="background-color: white;opacity: 1;width: 160px;padding-right: 0px !important;" type="text">
+                                    <span class="input-group-addon" style="margin-right: 0px;position: absolute;right: 1px;z-index: 10;width: 39px;border-bottom-right-radius: var(--border-radius-input);border-top-right-radius: var(--border-radius-input);cursor: pointer;margin: 1px;height: 30px;">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-    
-    <div class="row" style="display: none;">
-        <div class="col-md-12">
-            <div class="form-group row">
-                <label class="col-md-2 col-form-label">Page Size</label>
-                <div class="col-md-6">
-                    <select class="form-control" id="size" name="size">
-                        <option value="1000">1000</option>
-                    </select>
+            <div class="row" style="display: none;">
+                <div class="col-md-12">
+                    <div class="form-group row">
+                        <label class="col-md-2 col-form-label">Page Size</label>
+                        <div class="col-md-6">
+                            <select class="form-control" id="size" name="size">
+                                <option value="1000">1000</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-            <div class="form-group row">
-                <div class="col-md-2 offset-md-2">
-                    <input class="btn-primary" id="btnSearch" type="button" value="Search"/>
+            <div class="row" style="margin-bottom: 15px;">
+                <div class="col-md-12">
+                    <div class="form-group row">
+                        <div class="col-md-2 offset-md-2">
+                            <input class="btn-primary" id="btnSearch" type="button" value="Search"/>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-            <div class="form-group row">
-                <label class="col-md-2 col-form-label">Filter API:</label>
-                <div class="col-md-6">
-                    <select id="filterselect" name="filterselect" class="form-control">
-                        <option value="">All</option>
-                    </select>
+            <div class="row" id="filter" style="margin-bottom: 25px; display: none;">
+                <div class="col-md-12">
+                    <div class="form-group row">
+                        <label class="col-md-2 col-form-label">Filter API:</label>
+                        <div class="col-md-6">
+                            <select class="form-control" id="filterselect" name="filterselect">
+                                <option value="">All</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="row" style="margin-bottom: 15px;">
-        <div class="col-md-12">
-            <table id="lstSumary">
-                <thead></thead>
-                <tbody></tbody>
-            </table>
-        </div>
-    </div>
-    <div class="row" style="margin-bottom: 15px;">
-        <div class="col-md-12" id="chartContainer" style="width: 75%;"><canvas id="canvas"></canvas></div>
-    </div>
-    <div class="row" style="margin-bottom: 15px;">
-        <div class="col-md-12">
-            <table id="lst">
-                <thead></thead>
-                <tbody></tbody>
-            </table>
-        </div>
-    </div>
-    <div class="row" style="margin-bottom: 15px;">
-        <div class="col-md-12">
-            <table id="log">
-                <thead></thead>
-                <tbody></tbody>
-            </table>
+            <div class="row" style="margin-bottom: 25px;">
+                <div class="col-md-12">
+                    <table class="table table-striped table-bordered table-sm" id="lstSumary">
+                        <thead></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row" style="margin-bottom: 25px; display: none;">
+                <div class="col-md-12" id="chartContainer" style="width: 75%;">
+                    <canvas id="canvas"></canvas>
+                </div>
+            </div>
+            <div class="row" style="margin-bottom: 25px;">
+                <div class="col-md-12">
+                    <table class="table table-striped table-bordered table-sm" id="lst">
+                        <thead></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row" style="margin-bottom: 25px;">
+                <div class="col-md-12">
+                    <table class="search-table" id="log">
+                        <thead></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>

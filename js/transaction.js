@@ -1,4 +1,4 @@
-(function ($) {
+(function($) {
     window.chartColors = {
         red: 'rgb(255, 99, 132)',
         orange: 'rgb(255, 159, 64)',
@@ -17,6 +17,19 @@
         type: 'bar',
         data: barChartData
     });
+
+    function GotoDashboard() {
+        var pathDash = drupalSettings.path.baseUrl;
+        var paramPath = drupalSettings.path.currentPath.replace("transaction");
+        window.location.href = pathDash + paramPath;
+    }
+
+    function GotoSubscription() {
+        var pathDash = drupalSettings.path.baseUrl;
+        var paramPath = drupalSettings.path.currentPath.replace("transaction");
+        window.location.href = pathDash + paramPath + "subscriptions";
+    }
+
     function resetTable(idTable) {
         $('#' + idTable).html("<thead></thead> <tbody></tbody>");
     }
@@ -24,7 +37,7 @@
     function buildHeader(obj, idTable) {
         var tr = '<tr>';
         for (var i = 0; i < Object.keys(obj).length; i++) {
-            tr += '<th style="border: 1px solid black;">' + Object.keys(obj)[i] + '</th>';
+            tr += '<th>' + Object.keys(obj)[i] + '</th>';
         }
 
         tr += '</tr>';
@@ -53,9 +66,9 @@
                 var tr = '<tr>';
                 for (var i = 0; i < Object.keys(obj).length; i++) {
                     if (typeof obj[Object.keys(obj)[i]] === 'object') {
-                        tr += '<td style="border: 1px solid black;">' + buildStringBody(obj[Object.keys(obj)[i]], 1) + '</td>';
+                        tr += '<td>' + buildStringBody(obj[Object.keys(obj)[i]], 1) + '</td>';
                     } else {
-                        tr += '<td style="border: 1px solid black;">' + obj[Object.keys(obj)[i]] + '</td>';
+                        tr += '<td>' + obj[Object.keys(obj)[i]] + '</td>';
                     }
                 }
                 tr += '</tr>';
@@ -146,12 +159,13 @@
             }
         }
         selectOption.sort();
-        selectOption.forEach(el => {
+        for (var i = 0; i < selectOption.length; i++) {
+            var el = selectOption[i];
             var opt = document.createElement('option');
             opt.value = el;
             opt.innerHTML = ParseNameAPI(el);
             select.appendChild(opt);
-        });
+        }
         $('#filterselect').val(valueSelect);
     }
 
@@ -166,12 +180,12 @@
             type: 'POST',
             url: drupalSettings.path.baseUrl + 'apianalytic/get',
             data: inputdata,
-            beforeSend: function () {
+            beforeSend: function() {
                 resetTable('lstSumary');
                 resetTable('lst');
                 resetTable('log');
             },
-            success: function (obj) {
+            success: function(obj) {
                 if (obj.data != undefined) {
                     var objSerialize = ParseToJson(obj.data.content);
                     var data = [];
@@ -186,6 +200,10 @@
                             buildBody(transationSumary[i], 'lstSumary');
                         }
                     }
+                    $('#lstSumary').DataTable({
+                        "scrollX": true,
+                        "scrollY": 400,
+                    });
                     BuildCanvasChart(transationSumary);
                     var transactionList = BuilDataListTransaction(data);
                     if (transactionList.length > 0) {
@@ -194,33 +212,39 @@
                             buildBody(transactionList[i], 'lst');
                         }
                     }
-
+                    $('#lst').DataTable({
+                        "scrollX": true,
+                        "scrollY": 400,
+                    });
                     // buildHeader(objSerialize.responses[0].hits.hits[0]._source, 'log');
                     // for (var i = 0; i < objSerialize.responses[0].hits.hits.length; i++) {
                     //     buildBody(objSerialize.responses[0].hits.hits[i]._source, 'log');
                     // }
                 }
             },
-            error: function (err) {
+            error: function(err) {
                 console.log(err);
+            },
+            complete: function() {
+                $('#filter').show();
             }
         });
     }
-    Date.prototype.addDays = function (days) {
+    Date.prototype.addDays = function(days) {
         var date = new Date(this.valueOf());
         date.setDate(date.getDate() + days);
         return date;
     }
-    Date.prototype.addHours = function (h) {
+    Date.prototype.addHours = function(h) {
         this.setTime(this.getTime() + (h * 60 * 60 * 1000));
         return this;
     }
-    Date.prototype.addMinutes = function (m) {
+    Date.prototype.addMinutes = function(m) {
         this.setTime(this.getTime() + (m * 60 * 1000));
         return this;
     }
 
-    Date.prototype.ConvertCodeStringDate = function () {
+    Date.prototype.ConvertCodeStringDate = function() {
         return this.getDate() + "/" + (this.getMonth() + 1) + "/" + this.getFullYear() + " " + this.getHours() + ":" + this.getMinutes() + ":" + this.getSeconds();
     }
 
@@ -382,8 +406,7 @@
                                 }
                             }
                         }
-                    }
-                    else {
+                    } else {
                         if (obj.api_name == selectFilter) {
                             var dateTrans = new Date(obj.datetime);
                             if (sameDay(dateTrans, DatatransactionDate)) {
@@ -492,7 +515,7 @@
                     // "Pre Count Transaction": PreCountTransaction,
                     // "Pre Total Amount": PreTotalAmount,
                     "Post Amount": FormatAmount(TotalAmount)
-                    //NetAmount
+                        //NetAmount
                 });
             }
         }
@@ -597,8 +620,7 @@
                             "Trans Desc": Description
                         });
                     }
-                }
-                else {
+                } else {
                     var obj = data[i];
                     if (obj.api_name == selectFilter) {
                         if (obj.request_body.indexOf('fastTransfer') >= 0 || obj.request_body.indexOf('externalTransfer') >= 0 || obj.request_body.indexOf('internalTransfer') >= 0 || obj.request_body.indexOf('billPaymentInfo') >= 0) {
@@ -704,7 +726,7 @@
                 borderWidth: 1,
                 data: datapointSummarySuccess
             }],
-            
+
         };
 
         myBar = new Chart(ctx, {
@@ -717,7 +739,8 @@
                 },
                 title: {
                     display: true,
-                    text: 'Transaction Summary'
+                    text: 'Transaction Summary',
+                    fontSize: 25
                 },
                 scales: {
                     yAxes: [{
@@ -729,21 +752,22 @@
                 }
             }
         });
+        $('#canvas').closest('.row').show();
 
         //window.myBar.update();
     }
 
-    $(document).ready(function () {
+    $(document).ready(function() {
         $('.datepicker').datepicker({
             format: 'yyyy-mm-dd'
         });
-        $('#btnSearch').click(function () {
+        $('#btnSearch').click(function() {
             CallAPI();
         });
-        $('#filterselect').change(function () {
+        $('#filterselect').change(function() {
             CallAPI();
         });
-        $('#size').change(function () {
+        $('#size').change(function() {
             CallAPI();
         });
 

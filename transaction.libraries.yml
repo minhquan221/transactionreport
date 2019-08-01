@@ -3,8 +3,18 @@ transactionmanager:
     css:
         base:
             css/bootstrap-datepicker.css: {}
+            css/addons/datatables.css: {}
+            css/mdb.css: {}
+            css/addons/datatables-select.css: {}
+            css/addons/directives.css: {}
+            css/addons/flag.css: {}
+            css/addons/rating.css: {}
+            css/addons/zmd.hierarchical-display.css: {}
+            css/modules/animations-extended.css: {}
+            css/mdb.css: {}
             css/transaction-base.css: {}
     js:
         js/bootstrap-datepicker.js: {}
+        js/addons/datatables.js: {}
         js/chart.min.js: {}
         js/transaction.js: {}

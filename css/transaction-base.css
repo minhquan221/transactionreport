@@ -2,7 +2,8 @@
     background-color: green !important;
 }
 
-table#lstSumary,
+
+/* table#lstSumary,
 table#lst,
 table#log {
     border: 1px solid black;
@@ -23,4 +24,59 @@ table#log thead tr th {
     text-align: center;
     background-color: grey;
     color: white;
+} */
+
+
+/*SEARCH-TABLE*/
+
+.table {
+    border: solid 1px #DDEEEE;
+    /* max-width: 75%;
+    margin: 0 auto;
+    border-collapse: collapse;
+    border-spacing: 0;
+    font-family: "Open Sans", Helvetica, Arial, sans-serif; */
+}
+
+.table thead th {
+    background-color: #008c44;
+    border: solid 1px #DDEEEE;
+    color: #fff;
+    /* padding-top: 15px;
+    padding-bottom: 15px;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    font-size: 12px; */
+}
+
+.table tbody td {
+    border: solid 1px #DDEEEE;
+    color: #333;
+    /* padding: 5px;
+    white-space: nowrap; */
+}
+
+table.dataTable thead .sorting:before,
+table.dataTable thead .sorting_asc:before,
+table.dataTable thead .sorting_asc_disabled:before,
+table.dataTable thead .sorting_desc:before,
+table.dataTable thead .sorting_desc_disabled:before {
+    right: 1em;
+    content: "\f0de";
+    font-family: 'Font Awesome\ 5 Free';
+    font-weight: 900;
+    font-size: 1rem;
+}
+
+table.dataTable thead .sorting:after,
+table.dataTable thead .sorting_asc:after,
+table.dataTable thead .sorting_asc_disabled:after,
+table.dataTable thead .sorting_desc:after,
+table.dataTable thead .sorting_desc_disabled:after {
+    content: "\f0dd";
+    font-family: 'Font Awesome\ 5 Free';
+    font-weight: 900;
+    right: 16px;
+    font-size: 1rem;
 }
