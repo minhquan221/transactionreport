@@ -2,6 +2,31 @@
     background-color: green !important;
 }
 
+.maskBoxeContent {
+    position: fixed;
+    top: 40%;
+    left: 48%;
+    z-index: 99999999;
+}
+
+#maskBoxes {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0px;
+    z-index: 9999999999999;
+}
+
+#maskBoxesFake {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0px;
+    z-index: 99999998;
+    background-color: lightgray;
+    opacity: 0.5;
+}
+
 
 /* table#lstSumary,
 table#lst,
@@ -32,43 +57,42 @@ table#log thead tr th {
 .table {
     border: solid 1px #DDEEEE;
     max-width: 75%;
-    margin: 0 auto;
+    /* margin: 0 auto;
     border-collapse: collapse;
     border-spacing: 0;
-    font-family: "Open Sans", Helvetica, Arial, sans-serif;
+    font-family: "Open Sans", Helvetica, Arial, sans-serif; */
 }
 
 .table thead th {
     background-color: #008c44;
     border: solid 1px #DDEEEE;
     color: #fff;
-    padding-top: 15px;
+    /* padding-top: 15px;
     padding-bottom: 15px;
     text-align: center;
     white-space: nowrap;
-    vertical-align: middle;
+    vertical-align: middle; */
     font-size: 12px;
 }
 
 .table tbody td {
     border: solid 1px #DDEEEE;
     color: #333;
-    padding: 5px;
-    white-space: nowrap;
+    /* padding: 5px;
+    white-space: nowrap; */
 }
 
-
-/* 
 table.dataTable thead .sorting:before,
 table.dataTable thead .sorting_asc:before,
 table.dataTable thead .sorting_asc_disabled:before,
 table.dataTable thead .sorting_desc:before,
 table.dataTable thead .sorting_desc_disabled:before {
     right: 1em;
-    content: "\f0de";
+    content: "▲";
     font-family: 'Font Awesome\ 5 Free';
     font-weight: 900;
-    font-size: 1rem;
+    font-size: 0.6rem;
+    padding-bottom: 1em;
 }
 
 table.dataTable thead .sorting:after,
@@ -76,9 +100,36 @@ table.dataTable thead .sorting_asc:after,
 table.dataTable thead .sorting_asc_disabled:after,
 table.dataTable thead .sorting_desc:after,
 table.dataTable thead .sorting_desc_disabled:after {
-    content: "\f0dd";
+    content: "▼";
     font-family: 'Font Awesome\ 5 Free';
     font-weight: 900;
-    right: 16px;
-    font-size: 1rem;
-} */
+    right: 1em;
+    font-size: 0.6rem;
+}
+
+table.dataTable thead .sorting:before,
+table.dataTable thead .sorting:after,
+table.dataTable thead .sorting_asc:before,
+table.dataTable thead .sorting_asc:after,
+table.dataTable thead .sorting_desc:before,
+table.dataTable thead .sorting_desc:after,
+table.dataTable thead .sorting_asc_disabled:before,
+table.dataTable thead .sorting_asc_disabled:after,
+table.dataTable thead .sorting_desc_disabled:before,
+table.dataTable thead .sorting_desc_disabled:after {
+    bottom: 0.5em;
+}
+
+.table>caption+thead>tr:first-child>th,
+.table>colgroup+thead>tr:first-child>th,
+.table>thead:first-child>tr:first-child>th,
+.table>caption+thead>tr:first-child>td,
+.table>colgroup+thead>tr:first-child>td,
+.table>thead:first-child>tr:first-child>td {
+    vertical-align: middle;
+}
+
+.table-bordered>tbody>tr>th,
+.table-bordered>tbody>tr>td {
+    color: black;
+}

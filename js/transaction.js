@@ -31,7 +31,22 @@
     }
 
     function resetTable(idTable) {
+        if ($('.dataTables_length').length > 0) {
+            $('.dataTables_length').removeClass('bs-select');
+            $('#' + idTable).DataTable().destroy();
+        }
         $('#' + idTable).html("<thead></thead> <tbody></tbody>");
+    }
+
+    function blockUI(msg) {
+        $("#maskBoxes").show();
+        //$('.maskBoxeContent').css('top', '50%;');
+        if (typeof msg != 'undefined')
+            $('#msgLoading').text(msg);
+    }
+
+    function unBlockUI() {
+        $("#maskBoxes").hide();
     }
 
     function buildHeader(obj, idTable) {
@@ -170,6 +185,9 @@
     }
 
     function CallAPI() {
+        if ($('#fromDate').val() == '' || $('#toDate').val() == '') {
+            return;
+        }
         var inputdata = {};
         inputdata['fromDate'] = new Date($('#fromDate').val()).valueOf();
         inputdata['toDate'] = new Date($('#toDate').val()).addHours(23).addMinutes(59).valueOf();
@@ -181,9 +199,10 @@
             url: drupalSettings.path.baseUrl + 'apianalytic/get',
             data: inputdata,
             beforeSend: function() {
+                blockUI();
                 resetTable('lstSumary');
                 resetTable('lst');
-                resetTable('log');
+                //resetTable('log');
             },
             success: function(obj) {
                 if (obj.data != undefined) {
@@ -200,10 +219,10 @@
                             buildBody(transationSumary[i], 'lstSumary');
                         }
                     }
-                    // $('#lstSumary').DataTable({
-                    //     "scrollX": true,
-                    //     "scrollY": 400,
-                    // });
+                    $('#lstSumary').DataTable({
+                        "scrollX": true,
+                        "scrollY": true,
+                    });
                     BuildCanvasChart(transationSumary);
                     var transactionList = BuilDataListTransaction(data);
                     if (transactionList.length > 0) {
@@ -212,10 +231,10 @@
                             buildBody(transactionList[i], 'lst');
                         }
                     }
-                    // $('#lst').DataTable({
-                    //     "scrollX": true,
-                    //     "scrollY": 400,
-                    // });
+                    $('#lst').DataTable({
+                        "scrollX": true,
+                        "scrollY": true,
+                    });
                     // buildHeader(objSerialize.responses[0].hits.hits[0]._source, 'log');
                     // for (var i = 0; i < objSerialize.responses[0].hits.hits.length; i++) {
                     //     buildBody(objSerialize.responses[0].hits.hits[i]._source, 'log');
@@ -226,7 +245,9 @@
                 console.log(err);
             },
             complete: function() {
+                unBlockUI();
                 $('#filter').show();
+                $('.dataTables_length').addClass('bs-select');
             }
         });
     }
@@ -767,9 +788,9 @@
         $('#filterselect').change(function() {
             CallAPI();
         });
-        $('#size').change(function() {
-            CallAPI();
-        });
+        // $('#size').change(function() {
+        //     CallAPI();
+        // });
 
     });
 
